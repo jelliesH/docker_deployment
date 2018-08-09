@@ -1,0 +1,30 @@
+#启动/停止 docker服务
+sudo service docker stop
+sudo service docker start
+#查看docker容器
+[390771@w39-390771 ~]$ sudo docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+045818c39b84        2d194b392dd1        "/bin/bash"         37 seconds ago      Exited (0) 10 seconds ago                       centos_flask3_nginx_gunicorn
+
+#本地的anaconda3 复制到容器
+sudo docker cp 下载/Anaconda3-4.4.0-Linux-x86_64.sh 045818c39b84:/root/
+
+#启动容器
+sudo docker start -ai 045818c39b84
+
+#在容器中安装anaconda3
+sh Anaconda3-4.4.0-Linux-x86_64.sh
+
+#python 3.6
+##安装gunicorn flask gevent
+pip install gunicorn flask gevent
+##安装nginx
+sudo rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+yum install -y nginx
+#启动并查看nginx安装情况
+#启动nginx
+nginx
+#查看nginx启动情况
+top 或者 ps -ef | grep nginx
+
+

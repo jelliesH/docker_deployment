@@ -1,0 +1,30 @@
+# 1.载入打好包的docker文件
+docker load -i "centos_nginx_python3"
+# 2.重命名docker
+docker tag 6d1a760d8fd3 centos_nginx_python3:v1.0
+# 3.创建卷
+#docker run -v /home/liuhuan/docker/app/Zadeh_py3.5/Zadeh_py3.5:/root/ --name dataVol 6d1a760d8fd3 /bin/bash
+
+docker run -v /home/liuhuan/docker/app/Zadeh_py3.5/Zadeh_py3.5:/root/app_env --name dataVol01 6d1a760d8fd3
+
+# 4.创建容器，挂载卷并运行程序
+docker run -it -P --name testDay01 --volumes-from dataVol01 6d1a760d8fd3  sh -c "nginx &&  gunicorn --workers 3 --bind 0.0.0.0:5000 --user nginx --worker-class gevent serviceInterface:app" 
+
+
+# 5. 提交容器 打成镜像
+docker commit -a "Liu Huan 390771" -m "change nginx.d/app.conf"  flask_gunicorn_nginx flask_gunicorn_nginx:v1.1
+ 
+# 6.创建容器，挂载卷并运行程序
+docker run -it -P --name testDay01 --volumes-from dataVol01 flask_gunicorn_nginx:v1.1  sh -c "nginx &&  gunicorn --workers 3 --bind 0.0.0.0:5000 --user nginx --worker-class gevent serviceInterface:app" 
+
+###
+docker run -it -P --name testDay01 --volumes-from dataVol01 6d1a760d8fd3  sh -c "nginx && /root/anaconda3/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 --user nginx /root/app_env/serviceInterface:app"
+
+##
+docker run -it -P --name testDay01 --volumes-from dataVol01 centos7_nginx_flask3:v1.0 sh -c "cd /root/app_env  && nginx && /root/anaconda3/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 --user nginx serviceInterface:app"
+
+##
+docker run -it -P --name testDay01 --volumes-from dataVol01 centos7_nginx_flask3:v1.1 sh -c "cd /root/app_env  && nginx && /root/anaconda3/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 --user nginx serviceInterface:app"
+
+#####最后打包镜像的名称是flask_gunicorn_nginx:v1.2  修改了本地端口映射与docker端口映射，0.0.0.0是关键
+docker run -it -p 8000:8000 --name testDay01 --volumes-from dataVol01 flask_gunicorn_nginx:v1.2  sh -c "cd /root/app_env  && nginx && /root/anaconda3/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 --user nginx serviceInterface:app"
